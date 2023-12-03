@@ -7,6 +7,7 @@ yrly:
 
 .PHONY: deploy
 deploy:
+	$(HARDHAT) compile
 	$(HARDHAT) --network chain0 deploy
 	$(HARDHAT) --network chain1 deploy
 
