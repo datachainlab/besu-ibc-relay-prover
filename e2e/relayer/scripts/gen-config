@@ -1,0 +1,16 @@
+#!/bin/bash
+set -eux
+
+RELAYER_DIR=$(dirname $(dirname "$0"))
+
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <chain-id> <ibc-address>"
+  exit 1
+fi
+CHAINID=$1
+IBC_ADDRESS=$2
+
+TEMPLATE_DIR=${RELAYER_DIR}/configs/templates
+CONFIG_DIR=${RELAYER_DIR}/configs/demo
+mkdir -p $CONFIG_DIR
+jq --arg IBC_ADDRESS ${IBC_ADDRESS} -r '.chain.ibc_address = $IBC_ADDRESS' ${TEMPLATE_DIR}/${CHAINID}.json.tpl > ${CONFIG_DIR}/${CHAINID}.json
