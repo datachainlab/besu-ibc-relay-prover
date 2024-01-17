@@ -6,9 +6,9 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.3
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.2.0
-	github.com/datachainlab/ethereum-ibc-relay-chain v0.2.10-0.20231201145451-3c979d0ac34d
+	github.com/datachainlab/ethereum-ibc-relay-chain v0.2.11
 	github.com/ethereum/go-ethereum v1.12.0
-	github.com/hyperledger-labs/yui-relayer v0.4.19
+	github.com/hyperledger-labs/yui-relayer v0.4.22
 	github.com/spf13/cobra v1.7.0
 	google.golang.org/protobuf v1.30.0
 )

@@ -121,6 +121,11 @@ func (pr *Prover) ProveState(ctx core.QueryContext, path string, value []byte) (
 	return proof, height, err
 }
 
+// ProveHeader implements Prover.ProveHostConsensusState
+func (pr *Prover) ProveHostConsensusState(ctx core.QueryContext, height exported.Height, consensusState exported.ConsensusState) (proof []byte, err error) {
+	return clienttypes.MarshalConsensusState(pr.chain.Codec(), consensusState)
+}
+
 // CheckRefreshRequired implements Prover.CheckRefreshRequired
 func (pr *Prover) CheckRefreshRequired(counterparty core.ChainInfoICS02Querier) (bool, error) {
 	// TODO implement
