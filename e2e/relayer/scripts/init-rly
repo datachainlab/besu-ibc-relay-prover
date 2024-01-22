@@ -20,8 +20,8 @@ fi
 
 rm -rf ${RLY_HOME} &> /dev/null
 
-source ./chain0.env.sh && ${SCRIPT_DIR}/gen-config ibc0 ${IBC_HANDLER}
-source ./chain1.env.sh && ${SCRIPT_DIR}/gen-config ibc1 ${IBC_HANDLER}
+source ./chain0.env.sh && ${SCRIPT_DIR}/gen-config ibc0
+source ./chain1.env.sh && ${SCRIPT_DIR}/gen-config ibc1
 ${RLY} config init
 ${RLY} chains add-dir ${RELAYER_DIR}/configs/demo/
 # add a path between chain0 and chain1

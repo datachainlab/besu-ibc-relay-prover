@@ -14,7 +14,14 @@
     "initial_recv_checkpoint": 1,
     "enable_debug_trace": false,
     "average_block_time_msec": 1000,
-    "max_retry_for_inclusion": 5
+    "max_retry_for_inclusion": 5,
+    "allow_lc_functions": {
+      "lc_address": "$IBFT2_CLIENT_ADDRESS",
+      "allow_all": false,
+      "selectors": [
+        "0xa4f1ec28"
+      ]
+    }
   },
   "prover": {
     "@type": "/relayer.provers.ibft2.config.ProverConfig",
