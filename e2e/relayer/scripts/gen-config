@@ -1,16 +1,24 @@
 #!/bin/bash
-set -eux
+set -e
 
 RELAYER_DIR=$(dirname $(dirname "$0"))
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <chain-id> <ibc-address>"
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <chain-id>" >&2
   exit 1
 fi
+if [ -z "${IBC_HANDLER}" ]; then
+  echo "Error: env var 'IBC_HANDLER' is not set." >&2
+  exit 1
+fi
+if [ -z "${IBFT2_CLIENT}" ]; then
+  echo "Error: env var 'IBFT2_CLIENT' is not set." >&2
+  exit 1
+fi
+
 CHAINID=$1
-IBC_ADDRESS=$2
 
 TEMPLATE_DIR=${RELAYER_DIR}/configs/templates
 CONFIG_DIR=${RELAYER_DIR}/configs/demo
 mkdir -p $CONFIG_DIR
-jq --arg IBC_ADDRESS ${IBC_ADDRESS} -r '.chain.ibc_address = $IBC_ADDRESS' ${TEMPLATE_DIR}/${CHAINID}.json.tpl > ${CONFIG_DIR}/${CHAINID}.json
+jq '.chain.ibc_address = env.IBC_HANDLER | .chain.allow_lc_functions.lc_address = env.IBFT2_CLIENT' ${TEMPLATE_DIR}/${CHAINID}.json.tpl > ${CONFIG_DIR}/${CHAINID}.json
