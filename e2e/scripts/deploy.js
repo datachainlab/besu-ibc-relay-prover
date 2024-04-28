@@ -14,7 +14,9 @@ async function deployIBC(deployer) {
     "IBCConnectionSelfStateNoValidation",
     "IBCChannelHandshake",
     "IBCChannelPacketSendRecv",
-    "IBCChannelPacketTimeout"
+    "IBCChannelPacketTimeout",
+    "IBCChannelUpgradeInitTryAck",
+    "IBCChannelUpgradeConfirmTimeoutCancel"
   ];
   const logics = [];
   for (const name of logicNames) {

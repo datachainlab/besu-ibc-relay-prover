@@ -15,6 +15,12 @@
     "enable_debug_trace": false,
     "average_block_time_msec": 1000,
     "max_retry_for_inclusion": 5,
+    "gas_estimate_rate": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "max_gas_limit": 10000000,
+    "tx_type": "legacy",
     "allow_lc_functions": {
       "lc_address": "$IBFT2_CLIENT_ADDRESS",
       "allow_all": false,

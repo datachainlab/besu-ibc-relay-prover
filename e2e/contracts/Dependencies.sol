@@ -9,6 +9,10 @@ import {IBCChannelPacketSendRecv} from
     "@hyperledger-labs/yui-ibc-solidity/contracts/core/04-channel/IBCChannelPacketSendRecv.sol";
 import {IBCChannelPacketTimeout} from
     "@hyperledger-labs/yui-ibc-solidity/contracts/core/04-channel/IBCChannelPacketTimeout.sol";
+import {
+    IBCChannelUpgradeInitTryAck,
+    IBCChannelUpgradeConfirmTimeoutCancel
+} from "@hyperledger-labs/yui-ibc-solidity/contracts/core/04-channel/IBCChannelUpgrade.sol";
 import {IIBCHandler} from "@hyperledger-labs/yui-ibc-solidity/contracts/core/25-handler/IIBCHandler.sol";
 import {OwnableIBCHandler} from "@hyperledger-labs/yui-ibc-solidity/contracts/core/25-handler/OwnableIBCHandler.sol";
 import {IBFT2Client} from "@hyperledger-labs/yui-ibc-solidity/contracts/clients/IBFT2Client.sol";
