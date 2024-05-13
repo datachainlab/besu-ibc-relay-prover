@@ -21,6 +21,7 @@ network-down:
 
 .PHONY: init
 init:
+	./relayer/scripts/extract-abi.sh
 	RLY_BIN=$(RLY_BIN) ./relayer/scripts/init-rly
 
 .PHONY: handshake
