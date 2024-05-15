@@ -15,5 +15,5 @@ import {
 } from "@hyperledger-labs/yui-ibc-solidity/contracts/core/04-channel/IBCChannelUpgrade.sol";
 import {IIBCHandler} from "@hyperledger-labs/yui-ibc-solidity/contracts/core/25-handler/IIBCHandler.sol";
 import {OwnableIBCHandler} from "@hyperledger-labs/yui-ibc-solidity/contracts/core/25-handler/OwnableIBCHandler.sol";
-import {IBFT2Client} from "@hyperledger-labs/yui-ibc-solidity/contracts/clients/IBFT2Client.sol";
+import {QBFTClient} from "@hyperledger-labs/yui-ibc-solidity/contracts/clients/qbft/QBFTClient.sol";
 import {IBCMockApp} from "@hyperledger-labs/yui-ibc-solidity/contracts/apps/mock/IBCMockApp.sol";

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package ibc.lightclients.ibft2.v1;
+package ibc.lightclients.qbft.v1;
 
 option go_package = "github.com/datachainlab/ibft2-relay-prover/module";
 import "ibc/core/client/v1/client.proto";
@@ -9,9 +9,10 @@ import "gogoproto/gogo.proto";
 option (gogoproto.goproto_getters_all) = false;
 
 message ClientState {
-  string chain_id = 1;
+  bytes chain_id = 1;
   bytes ibc_store_address = 2;
   ibc.core.client.v1.Height latest_height = 3 [(gogoproto.nullable) = false];
+  uint64 trusting_period = 4;
 }
 
 message ConsensusState {

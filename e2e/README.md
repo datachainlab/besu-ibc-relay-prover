@@ -21,17 +21,15 @@ $ make test
 
 The above commands execute the following in sequence:
 
-1. Launch two HB chains (both chain uses IBFT 2.0 consensus)
-   - `make network`
-2. Deploy IBC contracts from yui-ibc-solidity to the chains using hardhat
+1. Launch two HB chains (both chain uses QBFT consensus)
+   - `make network-qbft`
+2. Deploy the IBC contracts from yui-ibc-solidity to the chains using hardhat
    - `make deploy`
-3. Call `registerClient` and `bindPort` to configurate the `IBCHandler`'s state
-   - `make deploy`
-4. Configurate yui-relayer setting with [./relayer/configs](./relayer/configs/)
+3. Configurate yui-relayer setting with [./relayer/configs](./relayer/configs/)
    - `make init`
-5. Perform IBC handshake using yui-relayer
+4. Perform IBC handshake using yui-relayer
    - `make handshake`
-6. Send a packet using [./scripts/sendPacket.js](./scripts/sendPacket.js) and relay it using yui-relayer
+5. Send a packet using [./scripts/sendPacket.js](./scripts/sendPacket.js) and relay it using yui-relayer
    - `make relay`
-7. Shutdown two HB chains
+6. Shutdown two HB chains
    - `make network-down`

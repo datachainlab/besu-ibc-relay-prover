@@ -1,5 +1,5 @@
 syntax = "proto3";
-package relayer.provers.ibft2.config;
+package relayer.provers.qbft.config;
 
 import "gogoproto/gogo.proto";
 
@@ -7,7 +7,6 @@ option go_package = "github.com/datachainlab/ibft2-relay-prover/module";
 option (gogoproto.goproto_getters_all) = false;
 
 message ProverConfig {
-  uint32 trust_level_numerator = 1;
-  uint32 trust_level_denominator = 2;
-  uint64 trusting_period = 3;  // as unix time seconds
+  string consensus_type = 1;
+  string trusting_period = 2;
 }

@@ -7,12 +7,12 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 )
 
-const IBFT2_CLIENT_TYPE = "hb-ibft2"
+const QBFT_CLIENT_TYPE = "hb-qbft"
 
 var _ exported.ClientState = (*ClientState)(nil)
 
 func (cs *ClientState) ClientType() string {
-	return IBFT2_CLIENT_TYPE
+	return QBFT_CLIENT_TYPE
 }
 
 func (cs *ClientState) GetLatestHeight() exported.Height {

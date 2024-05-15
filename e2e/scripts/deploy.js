@@ -1,4 +1,4 @@
-const ibft2ClientType = "hb-ibft2";
+const qbftClientType = "hb-qbft";
 const mockAppPortId = "mockapp";
 
 async function deploy(deployer, contractName, args = []) {
@@ -59,18 +59,18 @@ task("deploy", "Deploy the contracts")
     const ibcHandler = await deployIBC(deployer);
     console.log("IBCHandler address:", ibcHandler.target);
 
-    const ibft2Client = await deploy(deployer, "IBFT2Client", [ibcHandler.target]);
-    console.log("IBFT2Client address:", ibft2Client.target);
+    const qbftClient = await deploy(deployer, "QBFTClient", [ibcHandler.target]);
+    console.log("QBFTClient address:", qbftClient.target);
 
     const ibcMockApp = await deploy(deployer, "IBCMockApp", [ibcHandler.target]);
     console.log("IBCMockApp address:", ibcMockApp.target);
 
-    await ibcHandler.registerClient(ibft2ClientType, ibft2Client.target);
+    await ibcHandler.registerClient(qbftClientType, qbftClient.target);
     await ibcHandler.bindPort(mockAppPortId, ibcMockApp.target);
 
     saveContractAddresses({
       IBC_HANDLER: ibcHandler.target,
-      IBFT2_CLIENT: ibft2Client.target,
+      QBFT_CLIENT: qbftClient.target,
       IBC_MOCKAPP: ibcMockApp.target
     });
   });

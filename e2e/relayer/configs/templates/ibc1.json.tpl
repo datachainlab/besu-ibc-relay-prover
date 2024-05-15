@@ -23,14 +23,13 @@
     "tx_type": "legacy",
     "abi_paths": ["./abis"],
     "allow_lc_functions": {
-      "lc_address": "$IBFT2_CLIENT_ADDRESS",
+      "lc_address": "$QBFT_CLIENT_ADDRESS",
       "allow_all": true
     }
   },
   "prover": {
-    "@type": "/relayer.provers.ibft2.config.ProverConfig",
-    "trust_level_numerator": 1,
-    "trust_level_denominator": 3,
-    "trusting_period": 1209600
+    "@type": "/relayer.provers.qbft.config.ProverConfig",
+    "consensus_type": "$CONSENSUS_TYPE",
+    "trusting_period": "336h"
   }
 }
