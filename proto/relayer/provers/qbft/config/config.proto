@@ -3,7 +3,7 @@ package relayer.provers.qbft.config;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/datachainlab/ibft2-relay-prover/module";
+option go_package = "github.com/datachainlab/besu-ibc-relay-prover/module";
 option (gogoproto.goproto_getters_all) = false;
 
 message ProverConfig {

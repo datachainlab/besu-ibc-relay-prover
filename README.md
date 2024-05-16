@@ -1,4 +1,4 @@
-# qbft-relay-prover
+# besu-ibc-relay-prover
 
 This repository provides a [yui-relayer](https://github.com/hyperledger-labs/yui-relayer) prover module for Hyperledger Besu's QBFT and IBFT 2.0.
 
