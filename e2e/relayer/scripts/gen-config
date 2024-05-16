@@ -11,8 +11,12 @@ if [ -z "${IBC_HANDLER}" ]; then
   echo "Error: env var 'IBC_HANDLER' is not set." >&2
   exit 1
 fi
-if [ -z "${IBFT2_CLIENT}" ]; then
-  echo "Error: env var 'IBFT2_CLIENT' is not set." >&2
+if [ -z "${QBFT_CLIENT}" ]; then
+  echo "Error: env var 'QBFT_CLIENT' is not set." >&2
+  exit 1
+fi
+if [ -z "${CONSENSUS_TYPE}" ]; then
+  echo "Error: env var 'CONSENSUS_TYPE' is not set." >&2
   exit 1
 fi
 
@@ -21,4 +25,4 @@ CHAINID=$1
 TEMPLATE_DIR=${RELAYER_DIR}/configs/templates
 CONFIG_DIR=${RELAYER_DIR}/configs/demo
 mkdir -p $CONFIG_DIR
-jq '.chain.ibc_address = env.IBC_HANDLER | .chain.allow_lc_functions.lc_address = env.IBFT2_CLIENT' ${TEMPLATE_DIR}/${CHAINID}.json.tpl > ${CONFIG_DIR}/${CHAINID}.json
+jq '.chain.ibc_address = env.IBC_HANDLER | .chain.allow_lc_functions.lc_address = env.QBFT_CLIENT | .prover.consensus_type = env.CONSENSUS_TYPE ' ${TEMPLATE_DIR}/${CHAINID}.json.tpl > ${CONFIG_DIR}/${CHAINID}.json

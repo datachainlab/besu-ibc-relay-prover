@@ -1,5 +1,6 @@
 HARDHAT ?= npx hardhat
 RLY_BIN ?= ./build/yrly
+CONSENSUS_TYPE ?= qbft
 
 .PHONY: yrly
 yrly:
@@ -11,9 +12,13 @@ deploy:
 	$(HARDHAT) --network chain0 deploy
 	$(HARDHAT) --network chain1 deploy
 
-.PHONY: network
-network:
-	docker compose up --wait -d
+.PHONY: network-qbft
+network-qbft:
+	docker compose up --wait -d qbft-testchain0 qbft-testchain1
+
+.PHONY: network-ibft2
+network-ibft2:
+	docker compose up --wait -d ibft2-testchain0 ibft2-testchain1
 
 .PHONY: network-down
 network-down:
@@ -22,7 +27,7 @@ network-down:
 .PHONY: init
 init:
 	./relayer/scripts/extract-abi.sh
-	RLY_BIN=$(RLY_BIN) ./relayer/scripts/init-rly
+	RLY_BIN=$(RLY_BIN) CONSENSUS_TYPE=$(CONSENSUS_TYPE) ./relayer/scripts/init-rly
 
 .PHONY: handshake
 handshake:
@@ -34,8 +39,6 @@ relay:
 
 .PHONY: test
 test: yrly
-	$(MAKE) network
-	sleep 3
 	$(MAKE) deploy
 	$(MAKE) init
 	$(MAKE) handshake

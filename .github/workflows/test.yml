@@ -10,11 +10,14 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - uses: actions/setup-go@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+        cache: true
 
     - name: Test
       run: go test -v ./...
@@ -28,16 +31,23 @@ jobs:
       with:
         submodules: recursive
 
-    - uses: actions/setup-go@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+        cache: true
 
     - uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '20'
 
     - name: Resolve dependencies
       working-directory: e2e
       run: npm install
 
-    - name: Run E2E test
+    - name: Launch QBFT network
       working-directory: e2e
-      run: make test
+      run: make network-qbft CONSENSUS_TYPE=qbft test network-down
+
+    - name: Launch IBFT 2.0 network
+      working-directory: e2e
+      run: make network-ibft2 CONSENSUS_TYPE=ibft2 test network-down

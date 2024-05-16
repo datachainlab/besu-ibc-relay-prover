@@ -1,0 +1,12 @@
+syntax = "proto3";
+package relayer.provers.qbft.config;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/datachainlab/besu-ibc-relay-prover/module";
+option (gogoproto.goproto_getters_all) = false;
+
+message ProverConfig {
+  string consensus_type = 1;
+  string trusting_period = 2;
+}

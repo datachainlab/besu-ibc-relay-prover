@@ -10,14 +10,10 @@ import (
 	"github.com/hyperledger-labs/yui-relayer/core"
 )
 
-const (
-	IBFT2ClientType = "ibft2"
-)
-
 var _ core.Header = (*Header)(nil)
 
 func (Header) ClientType() string {
-	return IBFT2ClientType
+	return QBFT_CLIENT_TYPE
 }
 
 func (h *Header) GetHeight() exported.Height {

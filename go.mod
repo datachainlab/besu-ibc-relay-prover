@@ -1,4 +1,4 @@
-module github.com/datachainlab/ibft2-relay-prover
+module github.com/datachainlab/besu-ibc-relay-prover
 
 go 1.21
 

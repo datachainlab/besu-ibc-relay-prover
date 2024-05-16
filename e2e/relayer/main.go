@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
+	"github.com/datachainlab/besu-ibc-relay-prover/module"
 	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/relay/ethereum"
 	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/relay/ethereum/signers/hd"
-	"github.com/datachainlab/ibft2-relay-prover/module"
 	"github.com/hyperledger-labs/yui-relayer/cmd"
 )
 

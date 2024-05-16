@@ -58,7 +58,7 @@ func (pr *Prover) CreateInitialLightClientState(height exported.Height) (exporte
 	if err != nil {
 		return nil, nil, err
 	}
-	extra, err := parseIBFT2Extra(header.Extra)
+	extra, err := parseExtraData(header.Extra)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -70,8 +70,10 @@ func (pr *Prover) CreateInitialLightClientState(height exported.Height) (exporte
 	for _, val := range extra.Validators {
 		validators = append(validators, val.Bytes())
 	}
+	var chainIDUint256 [32]byte
+	big.NewInt(int64(pr.chain.Config().EthChainId)).FillBytes(chainIDUint256[:])
 	clientState := &ClientState{
-		ChainId:         pr.chain.ChainID(),
+		ChainId:         chainIDUint256[:],
 		IbcStoreAddress: pr.chain.Config().IBCAddress().Bytes(),
 		LatestHeight:    clienttypes.NewHeight(0, uint64(header.Number.Int64())),
 	}
@@ -164,11 +166,11 @@ func (pr *Prover) getHeader(ctx context.Context, bn *big.Int) (*Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	extra, err := parseIBFT2Extra(header.Extra)
+	extra, err := parseExtraData(header.Extra)
 	if err != nil {
 		return nil, err
 	}
-	headerBytes, seals, err := validateAndGetOrderedSeals(*header, *extra)
+	headerBytes, seals, err := pr.validateAndGetOrderedSeals(*header, *extra)
 	if err != nil {
 		return nil, err
 	}
@@ -183,18 +185,28 @@ func (pr *Prover) getHeader(ctx context.Context, bn *big.Int) (*Header, error) {
 	}, nil
 }
 
-type IBFT2Extra struct {
-	Vanity     [32]byte
+type ExtraData struct {
+	Vanity     []byte
 	Validators []common.Address
 	Vote       interface{}
-	Round      [4]byte
+	Round      []byte
 	Seals      [][]byte
 }
 
-func validateAndGetOrderedSeals(header gethtypes.Header, extra IBFT2Extra) (signHeaderBytes []byte, orderedSeals [][]byte, err error) {
-	extraBytes, err := rlp.EncodeToBytes([]interface{}{
-		extra.Vanity, extra.Validators, extra.Vote, extra.Round,
-	})
+func (pr *Prover) validateAndGetOrderedSeals(header gethtypes.Header, extra ExtraData) ([]byte, [][]byte, error) {
+	var (
+		extraBytes []byte
+		err        error
+	)
+	if pr.config.IsIBFT2() {
+		extraBytes, err = rlp.EncodeToBytes([]interface{}{
+			extra.Vanity, extra.Validators, extra.Vote, extra.Round,
+		})
+	} else {
+		extraBytes, err = rlp.EncodeToBytes([]interface{}{
+			extra.Vanity, extra.Validators, extra.Vote, extra.Round, [][]byte{},
+		})
+	}
 	if err != nil {
 		return nil, nil, err
 	}
@@ -207,6 +219,7 @@ func validateAndGetOrderedSeals(header gethtypes.Header, extra IBFT2Extra) (sign
 	if err != nil {
 		return nil, nil, err
 	}
+	var orderedSeals [][]byte
 	count := 0
 	for _, val := range extra.Validators {
 		if seal, ok := vals[val]; ok {
@@ -244,8 +257,8 @@ func ecrecover(hash, sig []byte) (common.Address, error) {
 	return crypto.PubkeyToAddress(*pub), nil
 }
 
-func parseIBFT2Extra(extraBytes []byte) (*IBFT2Extra, error) {
-	var extra IBFT2Extra
+func parseExtraData(extraBytes []byte) (*ExtraData, error) {
+	var extra ExtraData
 	r := bytes.NewReader(extraBytes)
 	stream := rlp.NewStream(r, uint64(len(extraBytes)))
 	if _, err := stream.List(); err != nil {
