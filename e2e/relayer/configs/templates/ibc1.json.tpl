@@ -30,6 +30,7 @@
   "prover": {
     "@type": "/relayer.provers.qbft.config.ProverConfig",
     "consensus_type": "$CONSENSUS_TYPE",
-    "trusting_period": "336h"
+    "trusting_period": "336h",
+    "max_clock_drift": "30s"
   }
 }

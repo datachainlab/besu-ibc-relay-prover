@@ -77,6 +77,7 @@ func (pr *Prover) CreateInitialLightClientState(height exported.Height) (exporte
 		IbcStoreAddress: pr.chain.Config().IBCAddress().Bytes(),
 		LatestHeight:    clienttypes.NewHeight(0, uint64(header.Number.Int64())),
 		TrustingPeriod:  uint64(pr.config.GetTrustingPeriod().Seconds()),
+		MaxClockDrift:   uint64(pr.config.GetMaxClockDrift().Seconds()),
 	}
 	consensusState := &ConsensusState{
 		Timestamp:  header.Time,

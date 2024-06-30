@@ -9,4 +9,5 @@ option (gogoproto.goproto_getters_all) = false;
 message ProverConfig {
   string consensus_type = 1;
   string trusting_period = 2;
+  string max_clock_drift = 3;
 }

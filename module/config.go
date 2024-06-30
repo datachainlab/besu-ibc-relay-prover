@@ -32,6 +32,11 @@ func (c ProverConfig) Validate() error {
 			return fmt.Errorf("invalid trusting period: %s", c.TrustingPeriod)
 		}
 	}
+	if c.MaxClockDrift != "" {
+		if _, err := time.ParseDuration(c.MaxClockDrift); err != nil {
+			return fmt.Errorf("invalid max clock drift: %s", c.MaxClockDrift)
+		}
+	}
 	return nil
 }
 
@@ -44,6 +49,17 @@ func (c ProverConfig) GetTrustingPeriod() time.Duration {
 		return 0
 	}
 	d, err := time.ParseDuration(c.TrustingPeriod)
+	if err != nil {
+		panic(err)
+	}
+	return d
+}
+
+func (c ProverConfig) GetMaxClockDrift() time.Duration {
+	if c.MaxClockDrift == "" {
+		return 0
+	}
+	d, err := time.ParseDuration(c.MaxClockDrift)
 	if err != nil {
 		panic(err)
 	}
