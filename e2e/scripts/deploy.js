@@ -16,7 +16,7 @@ async function deployIBC(deployer) {
     "IBCChannelPacketSendRecv",
     "IBCChannelPacketTimeout",
     "IBCChannelUpgradeInitTryAck",
-    "IBCChannelUpgradeConfirmTimeoutCancel"
+    "IBCChannelUpgradeConfirmOpenTimeoutCancel"
   ];
   const logics = [];
   for (const name of logicNames) {

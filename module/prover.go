@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/relay/ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -18,6 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/hyperledger-labs/yui-relayer/core"
 )
+
+// keccak256(abi.encode(uint256(keccak256("ibc.commitment")) - 1)) & ~bytes32(uint256(0xff))
+var IBCCommitmentsSlot = common.HexToHash("1ee222554989dda120e26ecacf756fe1235cd8d726706b57517715dde4f0c900")
 
 type Prover struct {
 	chain  *ethereum.Chain
@@ -109,7 +111,7 @@ func (pr *Prover) SetupHeadersForUpdate(counterparty core.FinalityAwareChain, la
 	if err != nil {
 		return nil, err
 	}
-	var cs ibcexported.ClientState
+	var cs exported.ClientState
 	if err := pr.chain.Codec().UnpackAny(counterpartyClientRes.ClientState, &cs); err != nil {
 		return nil, err
 	}
@@ -142,11 +144,11 @@ func (pr *Prover) newHeight(blockNumber int64) clienttypes.Height {
 
 func (pr *Prover) buildStateProof(path []byte, height int64) ([]byte, error) {
 	// calculate slot for commitment
-	slot := crypto.Keccak256Hash(append(
+	storageKey := crypto.Keccak256Hash(append(
 		crypto.Keccak256Hash(path).Bytes(),
-		common.Hash{}.Bytes()...,
+		IBCCommitmentsSlot.Bytes()...,
 	))
-	marshaledSlot, err := slot.MarshalText()
+	storageKeyHex, err := storageKey.MarshalText()
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +156,7 @@ func (pr *Prover) buildStateProof(path []byte, height int64) ([]byte, error) {
 	// call eth_getProof
 	stateProof, err := pr.chain.Client().GetProof(
 		pr.chain.Config().IBCAddress(),
-		[][]byte{marshaledSlot},
+		[][]byte{storageKeyHex},
 		big.NewInt(height),
 	)
 	if err != nil {
