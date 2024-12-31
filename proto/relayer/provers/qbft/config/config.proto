@@ -10,4 +10,10 @@ message ProverConfig {
   string consensus_type = 1;
   string trusting_period = 2;
   string max_clock_drift = 3;
+  Fraction refresh_threshold_rate = 4;
+}
+
+message Fraction {
+  uint64 numerator   = 1;
+  uint64 denominator = 2;
 }
