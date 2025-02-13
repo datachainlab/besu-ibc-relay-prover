@@ -38,9 +38,8 @@ relay:
 	RLY_BIN=$(RLY_BIN) ./relayer/scripts/relay
 
 .PHONY: test
-test: yrly
-	$(MAKE) deploy
-	$(MAKE) init
-	$(MAKE) handshake
-	$(MAKE) relay
-	$(MAKE) network-down
+test: yrly deploy init handshake relay network-down
+
+.PHONY: test-ibft2
+test-ibft2: CONSENSUS_TYPE := ibft2
+test-ibft2: test
