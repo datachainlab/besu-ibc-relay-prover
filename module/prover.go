@@ -48,7 +48,7 @@ func (pr *Prover) SetupForRelay(ctx context.Context) error {
 }
 
 // CreateInitialLightClientState implements Prover.CreateInitialLightClientState
-func (pr *Prover) CreateInitialLightClientState(height exported.Height) (exported.ClientState, exported.ConsensusState, error) {
+func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height exported.Height) (exported.ClientState, exported.ConsensusState, error) {
 	var blockNumber *big.Int
 	if height == nil {
 		blockNumber = nil
@@ -56,7 +56,7 @@ func (pr *Prover) CreateInitialLightClientState(height exported.Height) (exporte
 		blockNumber = big.NewInt(int64(height.GetRevisionHeight()))
 	}
 
-	header, err := pr.chain.Client().HeaderByNumber(context.Background(), blockNumber)
+	header, err := pr.chain.Client().HeaderByNumber(context.TODO(), blockNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -90,12 +90,12 @@ func (pr *Prover) CreateInitialLightClientState(height exported.Height) (exporte
 }
 
 // GetLatestFinalizedHeader implements Prover.GetLatestFinalizedHeader
-func (pr *Prover) GetLatestFinalizedHeader() (latestFinalizedHeader core.Header, err error) {
+func (pr *Prover) GetLatestFinalizedHeader(ctx context.Context) (latestFinalizedHeader core.Header, err error) {
 	return pr.getHeader(context.TODO(), nil)
 }
 
 // SetupHeadersForUpdate implements Prover.SetupHeadersForUpdate
-func (pr *Prover) SetupHeadersForUpdate(counterparty core.FinalityAwareChain, latestFinalizedHeader core.Header) ([]core.Header, error) {
+func (pr *Prover) SetupHeadersForUpdate(ctx context.Context, counterparty core.FinalityAwareChain, latestFinalizedHeader core.Header) ([]core.Header, error) {
 	header, ok := latestFinalizedHeader.(*Header)
 	if !ok {
 		return nil, fmt.Errorf("invalid header type: %T", latestFinalizedHeader)
@@ -103,7 +103,7 @@ func (pr *Prover) SetupHeadersForUpdate(counterparty core.FinalityAwareChain, la
 	if err := header.ValidateBasic(); err != nil {
 		return nil, err
 	}
-	latestHeight, err := counterparty.LatestHeight()
+	latestHeight, err := counterparty.LatestHeight(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -127,14 +127,14 @@ func (pr *Prover) ProveState(ctx core.QueryContext, path string, value []byte) (
 	return proof, height, err
 }
 
-// ProveHeader implements Prover.ProveHostConsensusState
+// ProveHostConsensusState implements Prover.ProveHostConsensusState
 func (pr *Prover) ProveHostConsensusState(ctx core.QueryContext, height exported.Height, consensusState exported.ConsensusState) (proof []byte, err error) {
 	return clienttypes.MarshalConsensusState(pr.chain.Codec(), consensusState)
 }
 
 // CheckRefreshRequired implements Prover.CheckRefreshRequired
-func (pr *Prover) CheckRefreshRequired(counterparty core.ChainInfoICS02Querier) (bool, error) {
-	cpQueryHeight, err := counterparty.LatestHeight()
+func (pr *Prover) CheckRefreshRequired(ctx context.Context, counterparty core.ChainInfoICS02Querier) (bool, error) {
+	cpQueryHeight, err := counterparty.LatestHeight(context.TODO())
 	if err != nil {
 		return false, fmt.Errorf("failed to get the latest height of the counterparty chain: %v", err)
 	}
@@ -161,12 +161,12 @@ func (pr *Prover) CheckRefreshRequired(counterparty core.ChainInfoICS02Querier) 
 	}
 	lcLastTimestamp := time.Unix(0, int64(cons.GetTimestamp()))
 
-	selfQueryHeight, err := pr.chain.LatestHeight()
+	selfQueryHeight, err := pr.chain.LatestHeight(context.TODO())
 	if err != nil {
 		return false, fmt.Errorf("failed to get the latest height of the self chain: %v", err)
 	}
 
-	selfTimestamp, err := pr.chain.Timestamp(selfQueryHeight)
+	selfTimestamp, err := pr.chain.Timestamp(context.TODO(), selfQueryHeight)
 	if err != nil {
 		return false, fmt.Errorf("failed to get timestamp of the self chain: %v", err)
 	}
