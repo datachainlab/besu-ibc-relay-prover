@@ -64,7 +64,7 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 	if err != nil {
 		return nil, nil, err
 	}
-	proof, err := pr.chain.Client().GetProof(pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
+	proof, err := pr.chain.Client().GetProof(context.TODO(), pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -199,6 +199,7 @@ func (pr *Prover) buildStateProof(path []byte, height int64) ([]byte, error) {
 
 	// call eth_getProof
 	stateProof, err := pr.chain.Client().GetProof(
+		context.TODO(),
 		pr.chain.Config().IBCAddress(),
 		[][]byte{storageKeyHex},
 		big.NewInt(height),
@@ -222,7 +223,7 @@ func (pr *Prover) getHeader(ctx context.Context, bn *big.Int) (*Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	proof, err := pr.chain.Client().GetProof(pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
+	proof, err := pr.chain.Client().GetProof(context.TODO(), pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
 	if err != nil {
 		return nil, err
 	}
