@@ -56,7 +56,7 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 		blockNumber = big.NewInt(int64(height.GetRevisionHeight()))
 	}
 
-	header, err := pr.chain.Client().HeaderByNumber(context.TODO(), blockNumber)
+	header, err := pr.chain.Client().HeaderByNumber(ctx, blockNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,7 +64,7 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 	if err != nil {
 		return nil, nil, err
 	}
-	proof, err := pr.chain.Client().GetProof(pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
+	proof, err := pr.chain.Client().GetProof(ctx, pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -91,7 +91,7 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 
 // GetLatestFinalizedHeader implements Prover.GetLatestFinalizedHeader
 func (pr *Prover) GetLatestFinalizedHeader(ctx context.Context) (latestFinalizedHeader core.Header, err error) {
-	return pr.getHeader(context.TODO(), nil)
+	return pr.getHeader(ctx, nil)
 }
 
 // SetupHeadersForUpdate implements Prover.SetupHeadersForUpdate
@@ -103,11 +103,11 @@ func (pr *Prover) SetupHeadersForUpdate(ctx context.Context, counterparty core.F
 	if err := header.ValidateBasic(); err != nil {
 		return nil, err
 	}
-	latestHeight, err := counterparty.LatestHeight(context.TODO())
+	latestHeight, err := counterparty.LatestHeight(ctx)
 	if err != nil {
 		return nil, err
 	}
-	counterpartyClientRes, err := counterparty.QueryClientState(core.NewQueryContext(context.TODO(), latestHeight))
+	counterpartyClientRes, err := counterparty.QueryClientState(core.NewQueryContext(ctx, latestHeight))
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (pr *Prover) SetupHeadersForUpdate(ctx context.Context, counterparty core.F
 func (pr *Prover) ProveState(ctx core.QueryContext, path string, value []byte) ([]byte, clienttypes.Height, error) {
 	proofHeight := int64(ctx.Height().GetRevisionHeight())
 	height := pr.newHeight(proofHeight)
-	proof, err := pr.buildStateProof([]byte(path), proofHeight)
+	proof, err := pr.buildStateProof(ctx.Context(), []byte(path), proofHeight)
 	return proof, height, err
 }
 
@@ -134,11 +134,11 @@ func (pr *Prover) ProveHostConsensusState(ctx core.QueryContext, height exported
 
 // CheckRefreshRequired implements Prover.CheckRefreshRequired
 func (pr *Prover) CheckRefreshRequired(ctx context.Context, counterparty core.ChainInfoICS02Querier) (bool, error) {
-	cpQueryHeight, err := counterparty.LatestHeight(context.TODO())
+	cpQueryHeight, err := counterparty.LatestHeight(ctx)
 	if err != nil {
 		return false, fmt.Errorf("failed to get the latest height of the counterparty chain: %v", err)
 	}
-	cpQueryCtx := core.NewQueryContext(context.TODO(), cpQueryHeight)
+	cpQueryCtx := core.NewQueryContext(ctx, cpQueryHeight)
 
 	resCs, err := counterparty.QueryClientState(cpQueryCtx)
 	if err != nil {
@@ -161,12 +161,12 @@ func (pr *Prover) CheckRefreshRequired(ctx context.Context, counterparty core.Ch
 	}
 	lcLastTimestamp := time.Unix(0, int64(cons.GetTimestamp()))
 
-	selfQueryHeight, err := pr.chain.LatestHeight(context.TODO())
+	selfQueryHeight, err := pr.chain.LatestHeight(ctx)
 	if err != nil {
 		return false, fmt.Errorf("failed to get the latest height of the self chain: %v", err)
 	}
 
-	selfTimestamp, err := pr.chain.Timestamp(context.TODO(), selfQueryHeight)
+	selfTimestamp, err := pr.chain.Timestamp(ctx, selfQueryHeight)
 	if err != nil {
 		return false, fmt.Errorf("failed to get timestamp of the self chain: %v", err)
 	}
@@ -186,7 +186,7 @@ func (pr *Prover) newHeight(blockNumber int64) clienttypes.Height {
 	return clienttypes.NewHeight(0, uint64(blockNumber))
 }
 
-func (pr *Prover) buildStateProof(path []byte, height int64) ([]byte, error) {
+func (pr *Prover) buildStateProof(ctx context.Context, path []byte, height int64) ([]byte, error) {
 	// calculate slot for commitment
 	storageKey := crypto.Keccak256Hash(append(
 		crypto.Keccak256Hash(path).Bytes(),
@@ -199,6 +199,7 @@ func (pr *Prover) buildStateProof(path []byte, height int64) ([]byte, error) {
 
 	// call eth_getProof
 	stateProof, err := pr.chain.Client().GetProof(
+		ctx,
 		pr.chain.Config().IBCAddress(),
 		[][]byte{storageKeyHex},
 		big.NewInt(height),
@@ -222,7 +223,7 @@ func (pr *Prover) getHeader(ctx context.Context, bn *big.Int) (*Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	proof, err := pr.chain.Client().GetProof(pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
+	proof, err := pr.chain.Client().GetProof(ctx, pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
 	if err != nil {
 		return nil, err
 	}
