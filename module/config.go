@@ -50,6 +50,15 @@ func (c ProverConfig) Validate() error {
 			return fmt.Errorf("invalid max clock drift: %s", c.MaxClockDrift)
 		}
 	}
+	if c.RefreshThresholdRate.Denominator == 0 {
+		return fmt.Errorf("config attribute \"refresh_threshold_rate.denominator\" must not be zero")
+	}
+	if c.RefreshThresholdRate.Numerator == 0 {
+		return fmt.Errorf("config attribute \"refresh_threshold_rate.numerator\" must not be zero")
+	}
+	if c.RefreshThresholdRate.Numerator > c.RefreshThresholdRate.Denominator {
+		return fmt.Errorf("config attribute \"refresh_threshold_rate\" must be less than or equal to 1.0: actual=%v/%v", c.RefreshThresholdRate.Numerator, c.RefreshThresholdRate.Denominator)
+	}
 	return nil
 }
 
