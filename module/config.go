@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/relay/ethereum"
 	"github.com/hyperledger-labs/yui-relayer/core"
+	"github.com/hyperledger-labs/yui-relayer/coreutil"
+	"github.com/hyperledger-labs/yui-relayer/otelcore"
+
+	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/relay/ethereum"
 )
 
 const (
@@ -16,11 +19,21 @@ const (
 var _ core.ProverConfig = (*ProverConfig)(nil)
 
 func (c ProverConfig) Build(chain core.Chain) (core.Prover, error) {
-	chain_, ok := chain.(*ethereum.Chain)
-	if !ok {
-		return nil, fmt.Errorf("chain type must be %T, not %T", &ethereum.Chain{}, chain)
+	ec, err := coreutil.UnwrapChain[*ethereum.Chain](chain)
+	if err != nil {
+		return nil, err
 	}
-	return NewProver(chain_, c), nil
+	if err := c.Validate(); err != nil {
+		return nil, err
+	}
+	// Use chain, not ec, for the case where the chain is wrapped by another struct that implements core.Chain (e.g. tracing bridge)
+	return otelcore.NewProver(NewProver(
+		chain,
+		c,
+		ec.Config().EthChainId,
+		ec.Config().IBCAddress(),
+		ec.Client(),
+	), chain.ChainID(), tracer), nil
 }
 
 func (c ProverConfig) Validate() error {

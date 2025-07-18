@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/relay/ethereum"
+	"github.com/datachainlab/ethereum-ibc-relay-chain/pkg/client"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -22,14 +22,28 @@ import (
 var IBCCommitmentsSlot = common.HexToHash("1ee222554989dda120e26ecacf756fe1235cd8d726706b57517715dde4f0c900")
 
 type Prover struct {
-	chain  *ethereum.Chain
-	config ProverConfig
+	chain           core.Chain
+	config          ProverConfig
+	ethChainID      uint64
+	ibcAddress      common.Address
+	executionClient *client.ETHClient
 }
 
 var _ core.Prover = (*Prover)(nil)
 
-func NewProver(chain *ethereum.Chain, config ProverConfig) *Prover {
-	return &Prover{chain: chain, config: config}
+func NewProver(
+	chain core.Chain,
+	config ProverConfig,
+	ethChainID uint64,
+	ibcAddress common.Address,
+	executionClient *client.ETHClient,
+) *Prover {
+	return &Prover{
+		chain:           chain,
+		config:          config,
+		ibcAddress:      ibcAddress,
+		executionClient: executionClient,
+	}
 }
 
 // Init implements Prover.Init
@@ -56,7 +70,7 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 		blockNumber = big.NewInt(int64(height.GetRevisionHeight()))
 	}
 
-	header, err := pr.chain.Client().HeaderByNumber(ctx, blockNumber)
+	header, err := pr.executionClient.HeaderByNumber(ctx, blockNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,7 +78,7 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 	if err != nil {
 		return nil, nil, err
 	}
-	proof, err := pr.chain.Client().GetProof(ctx, pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
+	proof, err := pr.executionClient.GetProof(ctx, pr.ibcAddress, nil, big.NewInt(int64(header.Number.Int64())))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,10 +87,10 @@ func (pr *Prover) CreateInitialLightClientState(ctx context.Context, height expo
 		validators = append(validators, val.Bytes())
 	}
 	var chainIDUint256 [32]byte
-	big.NewInt(int64(pr.chain.Config().EthChainId)).FillBytes(chainIDUint256[:])
+	big.NewInt(int64(pr.ethChainID)).FillBytes(chainIDUint256[:])
 	clientState := &ClientState{
 		ChainId:         chainIDUint256[:],
-		IbcStoreAddress: pr.chain.Config().IBCAddress().Bytes(),
+		IbcStoreAddress: pr.ibcAddress.Bytes(),
 		LatestHeight:    clienttypes.NewHeight(0, uint64(header.Number.Int64())),
 		TrustingPeriod:  uint64(pr.config.GetTrustingPeriod().Seconds()),
 		MaxClockDrift:   uint64(pr.config.GetMaxClockDrift().Seconds()),
@@ -198,9 +212,9 @@ func (pr *Prover) buildStateProof(ctx context.Context, path []byte, height int64
 	}
 
 	// call eth_getProof
-	stateProof, err := pr.chain.Client().GetProof(
+	stateProof, err := pr.executionClient.GetProof(
 		ctx,
-		pr.chain.Config().IBCAddress(),
+		pr.ibcAddress,
 		[][]byte{storageKeyHex},
 		big.NewInt(height),
 	)
@@ -211,7 +225,7 @@ func (pr *Prover) buildStateProof(ctx context.Context, path []byte, height int64
 }
 
 func (pr *Prover) getHeader(ctx context.Context, bn *big.Int) (*Header, error) {
-	header, err := pr.chain.Client().HeaderByNumber(ctx, bn)
+	header, err := pr.executionClient.HeaderByNumber(ctx, bn)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +237,7 @@ func (pr *Prover) getHeader(ctx context.Context, bn *big.Int) (*Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	proof, err := pr.chain.Client().GetProof(ctx, pr.chain.Config().IBCAddress(), nil, big.NewInt(int64(header.Number.Int64())))
+	proof, err := pr.executionClient.GetProof(ctx, pr.ibcAddress, nil, big.NewInt(int64(header.Number.Int64())))
 	if err != nil {
 		return nil, err
 	}
