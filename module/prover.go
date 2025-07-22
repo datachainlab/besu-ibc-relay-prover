@@ -109,7 +109,7 @@ func (pr *Prover) GetLatestFinalizedHeader(ctx context.Context) (latestFinalized
 }
 
 // SetupHeadersForUpdate implements Prover.SetupHeadersForUpdate
-func (pr *Prover) SetupHeadersForUpdate(ctx context.Context, counterparty core.FinalityAwareChain, latestFinalizedHeader core.Header) ([]core.Header, error) {
+func (pr *Prover) SetupHeadersForUpdate(ctx context.Context, counterparty core.FinalityAwareChain, latestFinalizedHeader core.Header) (<-chan *core.HeaderOrError, error) {
 	header, ok := latestFinalizedHeader.(*Header)
 	if !ok {
 		return nil, fmt.Errorf("invalid header type: %T", latestFinalizedHeader)
@@ -130,7 +130,7 @@ func (pr *Prover) SetupHeadersForUpdate(ctx context.Context, counterparty core.F
 		return nil, err
 	}
 	header.TrustedHeight = cs.GetLatestHeight().(clienttypes.Height)
-	return []core.Header{header}, nil
+	return core.MakeHeaderStream(header), nil
 }
 
 // ProveState implements Prover.ProveState
