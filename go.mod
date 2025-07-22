@@ -10,7 +10,7 @@ require (
 	github.com/datachainlab/ethereum-ibc-relay-chain v0.3.18
 	github.com/datachainlab/ibc-hd-signer v0.1.2
 	github.com/ethereum/go-ethereum v1.14.12
-	github.com/hyperledger-labs/yui-relayer v0.5.15
+	github.com/hyperledger-labs/yui-relayer v0.5.17
 	github.com/spf13/cobra v1.8.0
 	go.opentelemetry.io/otel v1.35.0
 	google.golang.org/protobuf v1.36.5
